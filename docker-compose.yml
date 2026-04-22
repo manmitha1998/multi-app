@@ -1,0 +1,42 @@
+services:
+
+  db:
+    image: mysql:8
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+
+  app:
+    build: ./app
+    container_name: backend_app
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DB_NAME: ${MYSQL_DATABASE}
+    networks:
+      - app-network
+
+  web:
+    build: ./web
+    container_name: frontend_web
+    ports:
+      - "8000:80"
+    depends_on:
+      - app
+    networks:
+      - app-network
+
+volumes:
+  db_data:
+
+networks:
+  app-network:
