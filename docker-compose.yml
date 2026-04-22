@@ -1,43 +1,30 @@
-services:
+version: '3.8'
 
+services:
   db:
-    build: ./db
-    container_name: mysql_db
+    image: mysql:8
+    container_name: mysql-db
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: testdb
     volumes:
       - db_data:/var/lib/mysql
-    networks:
-      - app-network
 
   app:
     build: ./app
-    container_name: backend_app
-    ports:
-      - "3000:3000"
+    container_name: backend-app
+    env_file:
+      - .env
     depends_on:
       - db
-    environment:
-      DB_HOST: db
-      DB_USER: root
-      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      DB_NAME: ${MYSQL_DATABASE}
-    networks:
-      - app-network
 
   web:
     build: ./web
-    container_name: frontend_web
+    container_name: nginx-web
     ports:
       - "80:80"
     depends_on:
       - app
-    networks:
-      - app-network
 
 volumes:
   db_data:
-
-networks:
-  app-network:

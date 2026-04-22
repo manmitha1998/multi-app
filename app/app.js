@@ -3,43 +3,25 @@ const mysql = require('mysql2');
 
 const app = express();
 
-const dbConfig = {
-    host: 'db',
-    user: 'root',
-    password: 'root123',
-    database: 'testdb'
-};
-
-let db;
-
-function connectDB() {
-    db = mysql.createConnection(dbConfig);
-
-    db.connect(err => {
-        if (err) {
-            console.log("❌ DB not ready, retrying...");
-            setTimeout(connectDB, 5000);
-        } else {
-            console.log("✅ Connected to MySQL");
-        }
-    });
-}
-
-connectDB();
-
-// API
-app.get('/users', (req, res) => {
-    db.query("SELECT * FROM users", (err, results) => {
-        if (err) return res.send(err);
-        res.json(results);
-    });
+const db = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
 });
 
-// Root
+db.connect(err => {
+  if (err) {
+    console.log("DB connection failed");
+  } else {
+    console.log("Connected to DB");
+  }
+});
+
 app.get('/', (req, res) => {
-    res.send("Backend connected to DB!");
+  res.send("Backend connected to DB successfully 🚀");
 });
 
-app.listen(3000, '0.0.0.0', () => {
-    console.log("Backend running on port 3000");
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
 });
