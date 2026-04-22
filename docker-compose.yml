@@ -1,20 +1,21 @@
 services:
 
   db:
-    image: mysql:8
+    build: ./db
     container_name: mysql_db
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
     volumes:
       - db_data:/var/lib/mysql
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - app-network
 
   app:
     build: ./app
     container_name: backend_app
+    ports:
+      - "3000:3000"
     depends_on:
       - db
     environment:
@@ -29,7 +30,7 @@ services:
     build: ./web
     container_name: frontend_web
     ports:
-      - "8000:80"
+      - "80:80"
     depends_on:
       - app
     networks:
